@@ -20,14 +20,15 @@ export const createRepo = async (repoName: string, projectData: object, metaData
             'X-GitHub-Api-Version': '2022-11-28'
         }
     });
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
     //writing files to repo
     const owner = config.org;
     const filesToCreate = [
-        {
-            path: 'README.md',
-            content: `${repoName} is a musicblocks project`
-        },
+        // {
+        //     path: 'README.md',
+        //     content: `${repoName} is a musicblocks project`
+        // },
         {
             path: 'projectData.json',
             content: JSON.stringify(projectData, null)
