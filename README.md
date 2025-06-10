@@ -2,10 +2,6 @@
 
 Empowering students with Git through Musicblocks
 
-# musicblocks-backend
-
-Empowering students with Git through Musicblocks
-
 > **This project is being developed as part of Sugar Labs Google Summer of Code (GSoC) 2025.**
 
 ## Overview
