@@ -1,7 +1,9 @@
 # musicblocks-backend
+
 Empowering students with Git through Musicblocks
 
 # musicblocks-backend
+
 Empowering students with Git through Musicblocks
 
 > **This project is being developed as part of Sugar Labs Google Summer of Code (GSoC) 2025.**
@@ -29,12 +31,14 @@ Empowering students with Git through Musicblocks
 ### Installation
 
 1. **Clone the repository:**
+
    ```sh
    git clone https://github.com/BeNikk/musicblocks-backend.git
    cd musicblocks-backend
    ```
 
 2. **Install dependencies:**
+
    ```sh
    npm install
    ```
@@ -42,6 +46,7 @@ Empowering students with Git through Musicblocks
 3. **Configure environment variables:**
 
    Create a `.env` file in the root directory:
+
    ```env
    PORT=3000
    GITHUB_APP_ID=your_github_app_id
@@ -53,11 +58,13 @@ Empowering students with Git through Musicblocks
    Place your GitHub App's private key as `src/config/private-key.pem`.
 
 4. **Build the project:**
+
    ```sh
    npm run build
    ```
 
 5. **Start the server:**
+
    ```sh
    npm start
    ```
@@ -71,15 +78,17 @@ Empowering students with Git through Musicblocks
 **POST** `/api/github/create`
 
 **Request Body:**
+
 ```json
 {
-  "repoName": "my-musicblocks-project", 
-  "projectData": { ... },               
-  "theme": "art"                       
+  "repoName": "my-musicblocks-project",
+  "projectData": { ... },
+  "theme": "art"
 }
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -108,13 +117,14 @@ dist/             # Compiled output
 ## Development
 
 - **Linting:**  
-  Uses ESLint with TypeScript support.  
+  Uses ESLint with TypeScript support.
+
   ```sh
   npx eslint .
   ```
 
 - **Building:**  
-  Compiles TypeScript to `dist/`.  
+  Compiles TypeScript to `dist/`.
   ```sh
   npm run build
   ```
@@ -129,11 +139,7 @@ dist/             # Compiled output
 
 ## License
 
-
 Music Blocks Git backend is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html), which means it will always be free to copy, modify, and hopefully improve. We respect your privacy: This project does not and will never access these data for purposes other than to restore your session and will never share these data with any third parties.
-
-
-
 
 ---
 
