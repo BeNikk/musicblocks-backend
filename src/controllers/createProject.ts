@@ -4,12 +4,12 @@ import { createMetaData, generateKey, hashKey } from '../utils/hash';
 
 export const handleCreateProject = async (req: Request, res: Response) => {
     let { repoName, projectData, theme } = req.body;
-    if(!repoName || !theme){
+    if (!repoName || !theme) {
         repoName = (new Date()).toISOString();
         theme = 'default';
     }
-    if(!projectData){
-        projectData = {1:'block',2:'block'}
+    if (!projectData) {
+        projectData = { 1: 'block', 2: 'block' }
     }
     const key = generateKey();
     const hashedKey = hashKey(key);

@@ -1,10 +1,7 @@
-// import { Octokit } from "octokit";
-// import { getInstallationToken } from "./getToken"
 import { config } from "../config/gitConfig";
 import { getAuthenticatedOctokit } from "../utils/octokit";
 
 export const createRepo = async (repoName: string, projectData: object, metaData: object): Promise<string> => {
-    // const token = await getInstallationToken();
     const octokit = await getAuthenticatedOctokit();
     const description = 'Musicblocks project repository';
 

@@ -1,10 +1,8 @@
-import { Octokit } from "octokit";
-import { getInstallationToken } from "./getToken"
 import { config } from "../config/gitConfig";
+import { getAuthenticatedOctokit } from "../utils/octokit";
 
 export const updateProjectDataFile = async (repoName: string, newProjectData: Record<string, string>) => {
-    const token = await getInstallationToken();
-    const octokit = new Octokit({ auth: token });
+    const octokit = await getAuthenticatedOctokit();
 
     const { data: currentFile } = await octokit.request(
         'GET /repos/{owner}/{repo}/contents/projectData.json',
