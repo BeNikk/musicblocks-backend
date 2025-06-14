@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response, } from "express";
-import { getInstallationToken } from "../services/getToken";
-import { Octokit } from "octokit";
+// import { getInstallationToken } from "../services/getToken";
+// import { Octokit } from "octokit";
 import { config } from "../config/gitConfig";
 import { hashKey } from "../utils/hash";
+import { getAuthenticatedOctokit } from "../utils/octokit";
 
 export const verifyOwner = async (req: Request, res: Response, next: NextFunction) => {
     const { repoName, key } = req.body;
@@ -10,8 +11,8 @@ export const verifyOwner = async (req: Request, res: Response, next: NextFunctio
         res.status(400).json({ error: "Missing key or RepoName" });
     }
     try {
-        const token = await getInstallationToken();
-        const octokit = new Octokit({ auth: token });
+        // const token = await getInstallationToken();
+        const octokit = await getAuthenticatedOctokit();
         const { data: metaFile } = await octokit.request(
             `GET /repos/{owner}/{repo}/contents/metaData.json`, {
             owner: config.org,
