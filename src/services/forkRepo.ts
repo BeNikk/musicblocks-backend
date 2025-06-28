@@ -2,7 +2,7 @@ import { config } from "../config/gitConfig";
 import { generateKey, hashKey, createMetaData } from "../utils/hash";
 import { getAuthenticatedOctokit } from "../utils/octokit";
 
-export const forkRepo = async (originalRepo: string, newRepoName: string,): Promise<{ repoUrl: string; key: string, projectData: string }> => {
+export const forkRepo = async (originalRepo: string, newRepoName: string,): Promise<{ repoName: string; key: string, projectData: string }> => {
     const octokit = await getAuthenticatedOctokit();
 
     // Get original repo
@@ -28,7 +28,7 @@ export const forkRepo = async (originalRepo: string, newRepoName: string,): Prom
     };
 
     // Create repo
-    const newRepo = await octokit.request(`POST /orgs/{org}/repos`, {
+    await octokit.request(`POST /orgs/{org}/repos`, {
         org: config.org,
         name: newRepoName,
         description: `Fork of ${originalRepo}`,
@@ -37,6 +37,7 @@ export const forkRepo = async (originalRepo: string, newRepoName: string,): Prom
         has_projects: true,
         has_wiki: true,
     });
+    
 
     //Write to new repo
     const files = [
@@ -61,7 +62,7 @@ export const forkRepo = async (originalRepo: string, newRepoName: string,): Prom
     ));
 
     return {
-        repoUrl: newRepo.data.html_url,
+        repoName: "fork-"+originalRepo,
         key,
         projectData
     };

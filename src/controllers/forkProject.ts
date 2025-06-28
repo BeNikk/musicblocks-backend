@@ -2,16 +2,16 @@ import { Request, Response } from 'express';
 import { forkRepo } from '../services/forkRepo';
 
 export const handleForkProject = async (req: Request, res: Response) => {
-    const { repoName } = req.body;
+    const { repositoryName } = req.body;
 
-    if (!repoName) {
+    if (!repositoryName) {
         res.status(400).json({ error: "Missing required fields" });
     }
-    const newRepoName = `fork-${repoName}`;
+    const newRepoName = `fork-${repositoryName}`;
 
     try {
-        const { repoUrl, key, projectData } = await forkRepo(repoName, newRepoName);
-        res.json({ success: true, repoUrl, key, projectData });
+        const { repoName, key, projectData } = await forkRepo(repositoryName, newRepoName);
+        res.json({ repoName, key, projectData });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Could not fork repository" });
