@@ -2,7 +2,7 @@ import { config } from "../config/gitConfig";
 import { generateKey, hashKey, createMetaData } from "../utils/hash";
 import { getAuthenticatedOctokit } from "../utils/octokit";
 
-export const forkRepo = async (originalRepo: string, newRepoName: string,): Promise<{ repoUrl: string; key: string }> => {
+export const forkRepo = async (originalRepo: string, newRepoName: string,): Promise<{ repoUrl: string; key: string, projectData: string }> => {
     const octokit = await getAuthenticatedOctokit();
 
     // Get original repo
@@ -63,5 +63,6 @@ export const forkRepo = async (originalRepo: string, newRepoName: string,): Prom
     return {
         repoUrl: newRepo.data.html_url,
         key,
+        projectData
     };
 };

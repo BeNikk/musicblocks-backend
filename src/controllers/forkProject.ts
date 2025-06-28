@@ -10,8 +10,8 @@ export const handleForkProject = async (req: Request, res: Response) => {
     const newRepoName = `fork-${repoName}`;
 
     try {
-        const { repoUrl, key } = await forkRepo(repoName, newRepoName);
-        res.json({ success: true, repoUrl, key });
+        const { repoUrl, key, projectData } = await forkRepo(repoName, newRepoName);
+        res.json({ success: true, repoUrl, key, projectData });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Could not fork repository" });
