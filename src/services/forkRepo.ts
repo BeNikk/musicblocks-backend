@@ -1,8 +1,9 @@
 import { config } from "../config/gitConfig";
 import { generateKey, hashKey, createMetaData } from "../utils/hash";
 import { getAuthenticatedOctokit } from "../utils/octokit";
+import { v4 as uuidv4 } from "uuid";
 
-export const forkRepo = async (originalRepo: string, newRepoName: string,): Promise<{ repoName: string; key: string, projectData: string }> => {
+export const forkRepo = async (originalRepo: string): Promise<{ repoName: string; key: string, projectData: string }> => {
     const octokit = await getAuthenticatedOctokit();
 
     // Get original repo
@@ -26,11 +27,12 @@ export const forkRepo = async (originalRepo: string, newRepoName: string,): Prom
         ...createMetaData(hashedKey, originalMeta.theme || "default"),
         forkedFrom: `https://github.com/${config.org}/${originalRepo}`,
     };
+    const uniqueRepoName = `fork-${originalRepo}-${uuidv4()}`;
 
     // Create repo
     await octokit.request(`POST /orgs/{org}/repos`, {
         org: config.org,
-        name: newRepoName,
+        name: uniqueRepoName,
         description: `Fork of ${originalRepo}`,
         private: false,
         has_issues: true,
@@ -54,7 +56,7 @@ export const forkRepo = async (originalRepo: string, newRepoName: string,): Prom
     await Promise.all(files.map(file =>
         octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
             owner: config.org,
-            repo: newRepoName,
+            repo: uniqueRepoName,
             path: file.path,
             message: `Add ${file.path}`,
             content: Buffer.from(file.content).toString('base64'),
@@ -62,7 +64,7 @@ export const forkRepo = async (originalRepo: string, newRepoName: string,): Prom
     ));
 
     return {
-        repoName: "fork-"+originalRepo,
+        repoName: uniqueRepoName,
         key,
         projectData
     };
