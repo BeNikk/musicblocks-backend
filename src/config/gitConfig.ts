@@ -9,4 +9,6 @@ export const config = {
   org: process.env.ORG_NAME,
   privateKey: fs.readFileSync(path.resolve(__dirname,'../../src/config', './private-key.pem'), "utf-8"),
   installationId: process.env.GITHUB_INSTALLATION_ID,
+  forkedOrg: process.env.FORKED_ORG_NAME,
+  pat: process.env.GITHUB_PAT
 };
