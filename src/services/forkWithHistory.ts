@@ -8,8 +8,8 @@ import { getAuthenticatedOctokit } from "../utils/octokit";
 
 export const forkWithHistory = async (
   originalRepo: string
-): Promise<{ repoName: string; key: string; success: boolean }> => {
-  const uuid = uuidv4().split("-")[0];
+): Promise<{ repoName: string; key: string; success: boolean, projectData:Record<string,unknown> }> => {
+  const uuid = uuidv4();
   const uniqueRepoName = `${originalRepo}-fork-${uuid}`;
   const forkedFromURL = `https://github.com/${config.org}/${originalRepo}.git`;
   const newRepoURL = `https://${config.pat}@github.com/${config.org}/${uniqueRepoName}.git`;
@@ -42,6 +42,10 @@ export const forkWithHistory = async (
     };
 
     fs.writeFileSync(metaDataPath, JSON.stringify(newMeta, null, 2));
+    const projectDataPath = path.join(tempDir, "projectData.json");
+    const projectData = fs.existsSync(projectDataPath)
+      ? JSON.parse(fs.readFileSync(projectDataPath, "utf-8"))
+      : {};
     execSync(`git config user.name "Musicblocks Bot"`, { cwd: tempDir });
     execSync(`git config user.email "bot@musicblocks.org"`, { cwd: tempDir });
 
@@ -58,6 +62,7 @@ export const forkWithHistory = async (
       repoName: uniqueRepoName,
       key,
       success: true,
+      projectData,
     };
   } catch (err) {
     console.error("Fork with history failed:", err);

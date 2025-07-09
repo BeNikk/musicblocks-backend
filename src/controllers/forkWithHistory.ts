@@ -10,7 +10,7 @@ export const handleForkWithHistory = async (req: Request, res: Response) => {
 
   try {
     const forkUrl = await forkWithHistory(sourceRepo);
-    res.json({ success: true, repoUrl: forkUrl });
+    res.json({ success: true, repoUrl: forkUrl,projectData: forkUrl.projectData });
   } catch (error) {
     console.error('Fork error:', error);
     res.status(500).json({ error: 'Failed to fork with history.' });
