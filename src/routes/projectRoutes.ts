@@ -6,6 +6,7 @@ import { handleForkProject } from '../controllers/forkProject';
 import { handleCreatePR } from '../controllers/pullRequest';
 import { handleGetOpenPullRequests } from '../controllers/getPullRequest';
 import { handleForkWithHistory } from '../controllers/forkWithHistory';
+import { handleGetCommits } from '../controllers/getCommits';
 
 const projectRouter = express.Router();
 
@@ -15,5 +16,6 @@ projectRouter.post('/forkHistory',handleForkWithHistory);
 projectRouter.put('/edit', verifyOwner, handleEditProject);
 projectRouter.post('/create-pr', handleCreatePR);
 projectRouter.get('/openPR',handleGetOpenPullRequests);
+projectRouter.get("/commitHistory",handleGetCommits);
 
 export default projectRouter;
