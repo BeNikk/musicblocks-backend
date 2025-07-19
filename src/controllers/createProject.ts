@@ -18,9 +18,10 @@ export const handleCreateProject = async (req: Request, res: Response) => {
     const key = generateKey();
     const hashedKey = hashKey(key);
     const metadata = createMetaData(hashedKey, theme);
+    const trimRepoName = repoName.replaceAll(' ', '');
 
     try {
-        await createRepo(repoName, projectData, metadata, description);
+        await createRepo(trimRepoName, projectData, metadata, description);
         res.json({ success: true, key: key });
     } catch (err) {
         console.error(err);
