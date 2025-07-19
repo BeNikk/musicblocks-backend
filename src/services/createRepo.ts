@@ -5,18 +5,19 @@ import { v4 as uuidv4 } from "uuid";
 export const createRepo = async (
     repoName: string,
     projectData: object,
-    metaData: object
+    metaData: object,
+    description: string
 ): Promise<string> => {
     const octokit = await getAuthenticatedOctokit();
-    const description = "Musicblocks project repository";
     let uniqueRepoName = repoName;
+    const projectDesc = description;
     let repo;
     try {
         //create repo
         repo = await octokit.request(`POST /orgs/{org}/repos`, {
             org: config.org,
             name: uniqueRepoName,
-            description,
+            description:projectDesc,
             private: false,
             has_issues: true,
             hash_projects: true,
