@@ -8,6 +8,7 @@ import { handleGetOpenPullRequests } from '../controllers/getPullRequest';
 import { handleForkWithHistory } from '../controllers/forkWithHistory';
 import { handleGetCommits } from '../controllers/getCommits';
 import { handleGetProjectDataWithCommit } from '../controllers/getProjectDataWithCommit';
+import { handleGetProjectData } from '../controllers/getProjectData';
 
 const projectRouter = express.Router();
 
@@ -19,4 +20,5 @@ projectRouter.post('/create-pr', handleCreatePR);
 projectRouter.get('/openPR',handleGetOpenPullRequests);
 projectRouter.get("/commitHistory",handleGetCommits);
 projectRouter.get("/getProjectDataAtCommit",handleGetProjectDataWithCommit);
+projectRouter.get("/getProjectData",handleGetProjectData);
 export default projectRouter;
