@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { createRepo } from '../services/createRepo';
 import { createMetaData, generateKey, hashKey } from '../utils/hash';
+import { getRepoName } from '../utils/getRepoName';
 
 export const handleCreateProject = async (req: Request, res: Response) => {
     let { repoName, theme, description } = req.body;
@@ -18,11 +19,12 @@ export const handleCreateProject = async (req: Request, res: Response) => {
     const key = generateKey();
     const hashedKey = hashKey(key);
     const metadata = createMetaData(hashedKey, theme);
-    const trimRepoName = repoName.replaceAll(' ', '');
+    const trimRepoName = repoName.replaceAll(' ', '_');
 
     try {
-        await createRepo(trimRepoName, projectData, metadata, description);
-        res.json({ success: true, key: key });
+        const repoName = await createRepo(trimRepoName, projectData, metadata, description);
+        const repository = getRepoName(repoName);
+        res.json({ success: true, key: key, repository });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Something went wrong.' });
