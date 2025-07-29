@@ -8,7 +8,13 @@ import { getAuthenticatedOctokit } from "../utils/octokit";
 
 export const forkWithHistory = async (
   originalRepo: string
-): Promise<{ repoName: string; key: string; success: boolean, projectData:Record<string,unknown> }> => {
+): Promise<{
+  repoName: string;
+  key: string;
+  success: boolean;
+  projectData: Record<string, unknown>;
+  description: string;
+}> => {
   const uuid = uuidv4();
   const uniqueRepoName = `${originalRepo}-fork-${uuid}`;
   const forkedFromURL = `https://github.com/${config.org}/${originalRepo}.git`;
@@ -57,12 +63,19 @@ export const forkWithHistory = async (
     execSync(`git remote remove origin`, { cwd: tempDir });
     execSync(`git remote add origin ${newRepoURL}`, { cwd: tempDir });
     execSync(`git push -u origin main`, { cwd: tempDir });
+    const response = await octokit.request("GET /repos/{owner}/{repo}", {
+      owner: config.org,
+      repo: originalRepo,
+    });
+
+    const description = response.data.description || "";
 
     return {
       repoName: uniqueRepoName,
       key,
       success: true,
       projectData,
+      description,
     };
   } catch (err) {
     console.error("Fork with history failed:", err);
