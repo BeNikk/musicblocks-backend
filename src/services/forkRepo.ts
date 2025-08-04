@@ -74,7 +74,6 @@ export const forkRepo = async (
     });
 
     const description = response.data.description || "";
-    console.log(description);
 
     return {
         repoName: uniqueRepoName,
