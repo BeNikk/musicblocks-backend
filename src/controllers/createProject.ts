@@ -22,7 +22,7 @@ export const handleCreateProject = async (req: Request, res: Response) => {
     const trimRepoName = repoName.replaceAll(' ', '_');
 
     try {
-        const repoName = await createRepo(trimRepoName, projectData, metadata, description);
+        const repoName = await createRepo(trimRepoName, projectData, metadata, description,theme);
         const repository = getRepoName(repoName);
         res.json({ success: true, key: key, repository });
     } catch (err) {

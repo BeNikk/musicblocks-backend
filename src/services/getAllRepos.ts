@@ -11,6 +11,7 @@ export const getAllRepositories = async (page:number) => {
       page,
       headers: {
         "X-GitHub-Api-Version": "2022-11-28",
+        "Accept": "application/vnd.github.mercy-preview+json",
       },
     });
     return repositories;
