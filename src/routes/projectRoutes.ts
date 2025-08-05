@@ -9,6 +9,7 @@ import { handleForkWithHistory } from '../controllers/forkWithHistory';
 import { handleGetCommits } from '../controllers/getCommits';
 import { handleGetProjectDataWithCommit } from '../controllers/getProjectDataWithCommit';
 import { handleGetProjectData } from '../controllers/getProjectData';
+import { handleGetProjects } from '../controllers/getProjects';
 
 const projectRouter = express.Router();
 
@@ -21,4 +22,5 @@ projectRouter.get('/openPR',handleGetOpenPullRequests);
 projectRouter.get("/commitHistory",handleGetCommits);
 projectRouter.get("/getProjectDataAtCommit",handleGetProjectDataWithCommit);
 projectRouter.get("/getProjectData",handleGetProjectData);
+projectRouter.get("/allRepos",handleGetProjects);
 export default projectRouter;
