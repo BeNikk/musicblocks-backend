@@ -1,6 +1,7 @@
 import { config } from "../config/gitConfig";
 import { getAuthenticatedOctokit } from "../utils/octokit";
 import { v4 as uuidv4 } from "uuid";
+import { sanitizeTopics } from "../utils/sanitizeTopics";
 
 export const createRepo = async (
   repoName: string,
@@ -12,6 +13,9 @@ export const createRepo = async (
   const octokit = await getAuthenticatedOctokit();
   let uniqueRepoName = repoName;
   const projectDesc = description;
+  let themeArray = theme.split(',');
+  themeArray = sanitizeTopics(themeArray);
+
   let repo;
   try {
     //create repo
@@ -83,7 +87,7 @@ export const createRepo = async (
   await octokit.request("PUT /repos/{owner}/{repo}/topics", {
     owner: config.org,
     repo: uniqueRepoName,
-    names: theme,
+    names: themeArray,
     headers: {
       Accept: "application/vnd.github.mercy-preview+json",
       "X-GitHub-Api-Version": "2022-11-28",
