@@ -6,7 +6,8 @@ import { getRepoName } from '../utils/getRepoName';
 export const handleCreateProject = async (req: Request, res: Response) => {
     let { repoName, theme, description } = req.body;
     const { projectData } = req.body;
-    if (!repoName || !theme) {
+    
+    if (!repoName || !theme || repoName === '' || theme === '') {
         repoName = (new Date()).toISOString();
         theme = 'default';
     }
@@ -15,6 +16,7 @@ export const handleCreateProject = async (req: Request, res: Response) => {
     }
     if (!projectData) {
         res.status(400).json({message:"No project data"});
+        return;
     }
     const key = generateKey();
     const hashedKey = hashKey(key);
@@ -22,8 +24,8 @@ export const handleCreateProject = async (req: Request, res: Response) => {
     const trimRepoName = repoName.replaceAll(' ', '_');
 
     try {
-        const repoName = await createRepo(trimRepoName, projectData, metadata, description,theme);
-        const repository = getRepoName(repoName);
+        const repoUrl = await createRepo(trimRepoName, projectData, metadata, description, theme);
+        const repository = getRepoName(repoUrl);
         res.json({ success: true, key: key, repository });
     } catch (err) {
         console.error(err);
