@@ -6,138 +6,306 @@ Empowering students with Git through Musicblocks
 
 ## Overview
 
-**musicblocks-backend** is a Node.js/Express backend that enables users to create and manage Musicblocks projects, leveraging GitHub repositories for storage and collaboration. It automates repository creation, metadata management, and secure access using GitHub Apps.
+**Music Blocks backend** is a Node.js and Express service written in TypeScript. It lets the Music Blocks frontend create, edit, fork, and browse projects that are stored as GitHub repositories. The service automates repository creation, manages metadata, and authenticates using a GitHub App installation. It is developed as a potential replacement to the existing `Planet` server in Musicblocks and introduce students with the concept of Git and version control. 
 
-## Features
+## Key features
 
-- **Create Musicblocks Projects:** Automatically creates a new GitHub repository for each project.
-- **Metadata & Project Data:** Stores project data and metadata as JSON files in the repository.
-- **Secure Access:** Uses GitHub App authentication and JWT for secure API access.
-- **REST API:** Simple endpoints for project creation and management.
-- **TypeScript:** Written in TypeScript for type safety and maintainability.
+- **Create projects**: New GitHub repository per project with initial files, the project data containing the blocks`s Json and metadata containing information about the project created. 
+- **Edit projects**: Safe updates to `projectData.json` with commit messages via a `key`. The key serves as an identity of the users, through which they can edit an existing project. 
+- **Fork projects**: Fork with complete commit history, developed as a feature to extend on the work of other students. 
+- **Browse data**: List repos, fetch commits, retrieve Project data at any commit
 
-## Getting Started
+## High level project flow
 
-### Prerequisites
+- **Create new project**
+  - Frontend prepares `projectData.json`
+  - Sends to `POST /api/github/create`
+  - Backend creates repo, writes `projectData.json` and `metaData.json`, returns a one time `key`
 
-- Node.js (v18+ recommended)
-- A registered [GitHub App](https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app)
-- A GitHub organization to own the repositories
+- **Edit existing project**
+  - Frontend sends `repoName`, `key`, `projectData`, and `commitMessage` to `PUT /api/github/edit`
+  - Backend verifies owner by hashing the `key` and comparing with `metaData.json`
+  - If valid, backend commits update to `projectData.json`
 
-### Installation
+- **View commits or load older version**
+  - Frontend fetches list via `GET /api/github/commitHistory?repoName=...`
+  - When a commit is selected, frontend calls `GET /api/github/getProjectDataAtCommit?repoName=...&sha=...`
 
-1. **Clone the repository:**
+- **Fork existing project**
+  - Fork with history: `POST /api/github/forkHistory` clones and pushes full history, updates `metaData.json`.
+  - Only this feature requires a `PAT` (Personal access token).
 
-   ```sh
-   git clone https://github.com/BeNikk/musicblocks-backend.git
-   cd musicblocks-backend
-   ```
+## Tech stack
 
-2. **Install dependencies:**
+- Runtime: Node.js 18+
+- Framework: Express 5
+- Language: TypeScript
+- GitHub SDK: `octokit`
+- Testing: Jest and Supertest
 
-   ```sh
-   npm install
-   ```
+## Project structure
 
-3. **Configure environment variables:**
+```
+src/
+  config/       GitHub App config and private key
+  controllers/  Express route handlers
+  middleware/   Request middleware such as owner verification
+  routes/       Express routers
+  services/     GitHub API integration and business logic
+  types/        Shared TypeScript types
+  utils/        Helpers for auth, hashing, parsing, topics
+dist/           Compiled output
+```
 
-   Create a `.env` file in the root directory:
+## Prerequisites
 
-   ```env
-   PORT=3000
-   GITHUB_APP_ID=your_github_app_id
-   GITHUB_APP_CLIENT_ID=your_github_app_client_id
-   ORG_NAME=your_github_org_name
-   GITHUB_INSTALLATION_ID=your_github_installation_id
-   ```
+- Node.js 18 or later
+- A GitHub App installed on the target organization
+- A GitHub organization that will own project repositories
 
-   Place your GitHub App's private key as `src/config/private-key.pem`.
+## Configuration
 
-4. **Build the project:**
+Create a `.env` file at the repository root. The service reads the following variables:
 
-   ```sh
-   npm run build
-   ```
+```env
+PORT=3000
+GITHUB_APP_ID=your_app_id
+GITHUB_INSTALLATION_ID=your_installation_id
+ORG_NAME=your_org_name
+FORKED_ORG_NAME=optional_other_org_for_forks
+GITHUB_PAT=personal_access_token_required_for_forkHistory
+```
 
-5. **Start the server:**
+- Place the GitHub App private key file at `src/config/private-key.pem`.
+- `GITHUB_PAT` is required only by the fork with history workflow which pushes via HTTPS.
 
-   ```sh
-   npm start
-   ```
+## Setup and run
 
-   The server will run on the port specified in `.env` (default: 3000).
+```sh
+git clone https://github.com/BeNikk/musicblocks-backend.git
+cd musicblocks-backend
+npm install
+npm run build
+npm start
+```
 
-## API Endpoints
+The server listens on `PORT` from `.env` default is `5000` in code if unset.
 
-### Create a Project
+## API reference
 
-**POST** `/api/github/create`
+Base path: `/api/github`
 
-**Request Body:**
+### Create project
+
+POST `/create`
+
+Body
 
 ```json
 {
-  "repoName": "my-musicblocks-project",
-  "projectData": { ... },
-  "theme": "art"
+  "repoName": "my-musicblocks-project",        
+  "projectData": { "blocks": [] },            
+  "theme": "piano,learning",                  
+  "description": "Short description"          
 }
 ```
 
-**Response:**
+Notes
+
+- If `repoName` or `theme` is missing the backend falls back to a timestamp name and theme `default`.
+- Spaces in `repoName` are converted to underscores.
+- `theme` supports a comma separated list. Topics are sanitized to GitHub topic rules.
+
+Success response
 
 ```json
 {
   "success": true,
-  "key": "generated-access-key"
+  "key": "store_this_client_side",
+  "repository": "created-repo-name"
 }
 ```
 
-- Creates a new repository in your GitHub organization.
-- Stores `projectData.json` and `metaData.json` in the repo.
-- Returns a unique access key for the project.
+The `key` is hashed and stored in `metaData.json`. Keep the raw value safely on the client to authorize edits.
 
-## Project Structure
+### Edit project
 
+PUT `/edit`
+
+Body
+
+```json
+{
+  "repoName": "created-repo-name",
+  "key": "the_key_from_create_or_fork",
+  "projectData": { "blocks": [1,2,3] },
+  "commitMessage": "Update blocks"
+}
 ```
-src/
-  config/         # GitHub App config and private key
-  controllers/    # Express route handlers
-  middleware/     # (for future use)
-  routes/         # Express routers
-  services/       # GitHub API integration
-  types/          # TypeScript types
-  utils/          # Utility functions (JWT, hashing, etc.)
-dist/             # Compiled output
+
+Behavior
+
+- Middleware verifies owner by hashing `key` and comparing with `metaData.json`.
+- On success the service updates `projectData.json` using the provided `commitMessage`.
+
+Success response
+
+```json
+{ "message": "Project updated successfully" }
 ```
 
-## Development
+Possible errors
 
-- **Linting:**  
-  Uses ESLint with TypeScript support.
+- `400 Missing key or RepoName`
+- `300 Commit message is required`
+- `403 Invalid key, permission denied`
+
+### Fork project
+
+POST `/fork`
+
+Body
+
+```json
+{ "repositoryName": "source-repo" }
+```
+
+Success response
+
+```json
+{
+  "repoName": "fork-source-repo-<uuid>",
+  "key": "new_key_for_fork",
+  "projectData": { },
+  "description": "Fork of source-repo"
+}
+```
+
+### Fork project with history
+
+POST `/forkHistory`
+
+Body
+
+```json
+{ "sourceRepo": "source-repo" }
+```
+
+Success response
+
+```json
+{ "success": true, "repoUrl": "https://github.com/<org>/<new-repo>" }
+```
+
+Notes
+
+- Requires `GITHUB_PAT` in `.env` to push the cloned history.
+
+### Create pull request from a fork
+
+POST `/create-pr`
+
+Body
+
+```json
+{
+  "forkRepo": "forked-repo-name",
+  "updatedProjectData": { "blocks": [] }
+}
+```
+
+Behavior
+
+- Reads `forkedFrom` from `metaData.json` in the fork to identify the base repository.
+- Creates a new branch on the base repo and commits `projectData.json` with the provided content.
+- Opens a pull request to `main`.
+
+Success response
+
+```json
+{ "success": true, "prUrl": "https://github.com/<org>/<repo>/pull/<id>" }
+```
+
+### List open pull requests with project data
+
+GET `/openPR`
+
+Body
+
+```json
+{ "repo": "target-repo" }
+```
+
+Response is an array where each item contains the PR metadata and the parsed `projectData.json` from the PR head branch if available.
+
+### Get commit history
+
+GET `/commitHistory?repoName=<name>`
+
+Returns the commit list from the GitHub API for the repository.
+
+### Get project data at specific commit
+
+GET `/getProjectDataAtCommit?repoName=<name>&sha=<commit_sha>`
+
+Success response
+
+```json
+{ "success": true, "projectData": { }, "sha": "<commit_sha>" }
+```
+
+### Get latest project data
+
+GET `/getProjectData?repoName=<name>`
+
+Success response
+
+```json
+{ "content": { "success": true, "projectData": { } } }
+```
+
+### List repositories in the organization
+
+GET `/allRepos?page=<number>`
+
+Returns the GitHub API response for repositories. `per_page` is 50 and results are ordered by creation time descending.
+
+## Metadata files
+
+- `projectData.json` holds the serialized Music Blocks program.
+- `metaData.json` holds
+  - `createdAt` ISO timestamp
+  - `theme` topic string
+  - `hashedKey` SHA256 of the client key
+  - `forkedFrom` set on forks so that PRs can target the base repo
+
+## Development and testing
+
+- Lint
 
   ```sh
   npx eslint .
   ```
 
-- **Building:**  
-  Compiles TypeScript to `dist/`.
+- Build
+
   ```sh
   npm run build
   ```
 
-## Security
+- Test
 
-- **Private Key:**  
-  Never commit your GitHub App private key. It should be in `src/config/private-key.pem` and listed in `.gitignore`.
+  ```sh
+  npm test
+  ```
 
-- **Environment Variables:**  
-  Store sensitive credentials in `.env`.
+## Security notes
+
+- Never commit `src/config/private-key.pem`.
+- Do not expose the raw `key` values in logs or error messages. Only the hash is stored server side.
 
 ## License
 
-Music Blocks Git backend is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html), which means it will always be free to copy, modify, and hopefully improve. We respect your privacy: This project does not and will never access these data for purposes other than to restore your session and will never share these data with any third parties.
+Music Blocks Git backend is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html). It is free to copy and modify. The project does not access or share user data beyond what is required to restore sessions.
 
----
-
-**Contributions welcome!**  
-Feel free to open issues or pull requests to improve this project.
+**Contributions welcome**. Please open issues or pull requests.
