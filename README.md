@@ -304,6 +304,9 @@ Returns the GitHub API response for repositories. `per_page` is 50 and results a
 - Never commit `src/config/private-key.pem`.
 - Do not expose the raw `key` values in logs or error messages. Only the hash is stored server side.
 
+## Credits
+This repository was made under Google summer of code 2025 program by Nikhil bhatt(https://github.com/Benikk)
+
 ## License
 
 Music Blocks Git backend is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html). It is free to copy and modify. The project does not access or share user data beyond what is required to restore sessions.
